@@ -32,21 +32,6 @@ neg-ttl=600
 min-cache-ttl=3600
 EOF_DNS
 
-
-# PassWall main branch currently carries newer Go cores (for example Xray 26.x)
-# that can require a newer Go toolchain than ImmortalWrt 23.05 provides. The
-# workflow/local build script removes them before feeds install; this is a second
-# guard to remove any remaining source directories or installed symlinks.
-rm -rf \
-  feeds/passwall_packages/xray-core \
-  feeds/passwall_packages/sing-box \
-  package/feeds/passwall_packages/xray-core \
-  package/feeds/passwall_packages/sing-box
-if [ -e feeds/passwall_packages/xray-core ] || [ -e package/feeds/passwall_packages/xray-core ]; then
-  echo "ERROR: PassWall main-branch xray-core is still present; refusing to build with incompatible Go requirements." >&2
-  exit 1
-fi
-
 # Remove unwanted package directories if any feed brings them in, ensuring the image stays minimal.
 rm -rf \
   feeds/packages/net/adguardhome \

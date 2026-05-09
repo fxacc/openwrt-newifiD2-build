@@ -26,9 +26,6 @@ fi
 cd openwrt
 cp "$ROOT_DIR/feeds.conf.default" feeds.conf.default
 ./scripts/feeds update -a
-rm -rf \
-  feeds/passwall_packages/xray-core \
-  feeds/passwall_packages/sing-box
 ./scripts/feeds install -a
 cp "$ROOT_DIR/newifi3.config" .config
 bash "$ROOT_DIR/DIY/diy-part2-d2.sh"
