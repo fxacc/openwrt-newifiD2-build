@@ -141,9 +141,14 @@ jobs:
 
     - name: Organize files
       id: organize
-      if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
+      if: steps.compile.outputs.status == 'success' && env.UPLOAD_FIRMWARE == 'true'
       run: |
-        cd openwrt/bin/targets/*/*
+        TARGET_DIR="$(find openwrt/bin/targets -mindepth 2 -maxdepth 2 -type d | head -n 1)"
+        if [ -z "$TARGET_DIR" ] || ! find "$TARGET_DIR" -maxdepth 1 -type f \( -name '*.bin' -o -name '*.img' -o -name '*.gz' \) | grep -q .; then
+          echo "::error::Build finished without firmware images under openwrt/bin/targets; check the compile log above for the first make error."
+          exit 1
+        fi
+        cd "$TARGET_DIR"
         rm -rf packages config.buildinfo feeds.buildinfo sha256sums version.buildinfo *.manifest Packages.tar.gz
         echo "FIRMWARE=$PWD" >> $GITHUB_ENV
         echo "status=success" >> $GITHUB_OUTPUT
@@ -210,6 +215,7 @@ jobs:
 
     - name: Upload OpenWrt Firmware to Release
       uses: ncipollo/release-action@v1
+      if: steps.organize.outputs.status == 'success' && !cancelled()
       with:
         name: Newifi D2 PassWall2 Minimal ${{ env.DATE }}
         tag: newifi-d2-passwall2${{ env.FILE_NAME }}
