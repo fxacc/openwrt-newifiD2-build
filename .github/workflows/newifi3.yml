@@ -226,5 +226,5 @@ jobs:
         body: |
           * Newifi D2 极简固件：LuCI + PassWall2 + xray-core + sing-box
           * 默认 LAN IP：192.168.2.1，Hostname：Newifi-D2
-          * feeds.conf.default 已加入 passwall_packages 与 passwall2 feed（ImmortalWrt feeds 优先，避免 xray-core/sing-box 被 main 分支覆盖）
+          * feeds.conf.default 已加入 passwall_packages 与 passwall2 feed
           * ImmortalWrt OpenWrt 23.05-SNAPSHOT
