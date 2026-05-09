@@ -32,17 +32,6 @@ neg-ttl=600
 min-cache-ttl=3600
 EOF_DNS
 
-
-# PassWall main branch currently carries newer Go cores (for example Xray 26.x)
-# that can require a newer Go toolchain than ImmortalWrt 23.05 provides. Remove
-# those duplicate package definitions/symlinks so the build uses the 23.05-compatible
-# xray-core and sing-box from feeds/packages instead of feeds/passwall_packages.
-rm -rf \
-  feeds/passwall_packages/xray-core \
-  feeds/passwall_packages/sing-box \
-  package/feeds/passwall_packages/xray-core \
-  package/feeds/passwall_packages/sing-box
-
 # Remove unwanted package directories if any feed brings them in, ensuring the image stays minimal.
 rm -rf \
   feeds/packages/net/adguardhome \
