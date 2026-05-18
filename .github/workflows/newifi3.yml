@@ -11,27 +11,14 @@
 name: NEWIFI 3
 
 on:
-  repository_dispatch:
   workflow_dispatch:
     inputs:
       ssh:
         description: 'SSH connection to Actions'
         required: false
         default: 'false'
-  push:
-    branches:
-      - master
-    paths:
-      - 'newifi3.config'
-      - 'feeds.conf.default'
-      - 'DIY/diy-part1-d2-passwall2.sh'
-      - 'DIY/diy-part2-d2.sh'
-      - 'Scripts/build-newifi-d2-passwall2.sh'
-      - '.github/workflows/newifi3.yml'
 #  schedule:
 #    - cron: 0 8 * * 5
-  watch:
-    types: started
 
 env:
   REPO_URL: https://github.com/openwrt/openwrt
