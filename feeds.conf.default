@@ -1,0 +1,11 @@
+# ImmortalWrt 23.05 feeds first for the base system and target packages.
+src-git-full packages https://github.com/immortalwrt/packages.git;openwrt-23.05
+src-git-full luci https://github.com/immortalwrt/luci.git;openwrt-23.05
+src-git-full routing https://github.com/openwrt/routing.git;openwrt-23.05
+src-git-full telephony https://github.com/openwrt/telephony.git;openwrt-23.05
+
+# PassWall packages are pinned to a known-good 2025 commit: it still provides
+# geoview plus xray-core/sing-box for PassWall2, but avoids current main-branch
+# Xray 26.x requiring Go 1.26.
+src-git passwall_packages https://github.com/Openwrt-Passwall/openwrt-passwall-packages.git;da0627f
+src-git passwall2 https://github.com/Openwrt-Passwall/openwrt-passwall2.git;main
