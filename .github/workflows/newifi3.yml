@@ -24,7 +24,6 @@ on:
     paths:
       - 'newifi3.config'
       - 'feeds.conf.default'
-      - 'DIY/diy-part1-d2-passwall2.sh'
       - 'DIY/diy-part2-d2.sh'
       - 'Scripts/build-newifi-d2-passwall2.sh'
       - '.github/workflows/newifi3.yml'
@@ -88,12 +87,6 @@ jobs:
         
     - name: Update feeds
       run: cd openwrt && ./scripts/feeds update -a
-
-    - name: Use newer OpenWrt Go toolchain
-      run: |
-        cd openwrt
-        rm -rf feeds/packages/lang/golang
-        svn export --force https://github.com/openwrt/packages/trunk/lang/golang feeds/packages/lang/golang
 
     - name: Prune incompatible PassWall Go cores
       run: |
@@ -244,5 +237,5 @@ jobs:
         body: |
           * Newifi D2 极简固件：LuCI + PassWall2 + xray-core + sing-box
           * 默认 LAN IP：192.168.2.1，Hostname：Newifi-D2
-          * feeds.conf.default 已加入 passwall_packages 与 passwall2 feed（升级 OpenWrt Go 工具链以支持 geoview，并移除 PassWall main 分支 xray-core/sing-box）
+          * feeds.conf.default 已加入 passwall_packages 与 passwall2 feed
           * ImmortalWrt OpenWrt 23.05-SNAPSHOT

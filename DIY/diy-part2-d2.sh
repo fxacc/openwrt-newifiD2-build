@@ -32,27 +32,8 @@ neg-ttl=600
 min-cache-ttl=3600
 EOF_DNS
 
-
-# PassWall2 needs geoview for Sing-box rule-set/geofile conversion, so the
-# workflow upgrades the OpenWrt Go package before feeds install. Keep geoview,
-# but remove the PassWall main-branch xray-core/sing-box because current Xray
-# requires Go 1.26 while OpenWrt packages master currently provides Go 1.25.
-rm -rf \
-  feeds/passwall_packages/xray-core \
-  feeds/passwall_packages/sing-box \
-  package/feeds/passwall_packages/xray-core \
-  package/feeds/passwall_packages/sing-box
-if [ -e feeds/passwall_packages/xray-core ] || [ -e package/feeds/passwall_packages/xray-core ]; then
-  echo "ERROR: PassWall main-branch xray-core is still present; refusing to build with incompatible Go requirements." >&2
-  exit 1
-fi
-
 # Remove unwanted package directories if any feed brings them in, ensuring the image stays minimal.
-# package/small is intentionally removed because the full third-party bundle is
-# unnecessary for this target; PassWall2 geodata helpers come from passwall_packages.
 rm -rf \
-  package/small \
-  package/openwrt-packages \
   feeds/packages/net/adguardhome \
   feeds/packages/net/zerotier \
   feeds/luci/applications/luci-app-adguardhome \

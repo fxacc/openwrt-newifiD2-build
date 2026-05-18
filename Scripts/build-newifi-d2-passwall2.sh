@@ -25,13 +25,7 @@ fi
 
 cd openwrt
 cp "$ROOT_DIR/feeds.conf.default" feeds.conf.default
-bash "$ROOT_DIR/DIY/diy-part1-d2-passwall2.sh"
 ./scripts/feeds update -a
-rm -rf feeds/packages/lang/golang
-svn export --force https://github.com/openwrt/packages/trunk/lang/golang feeds/packages/lang/golang
-rm -rf \
-  feeds/passwall_packages/xray-core \
-  feeds/passwall_packages/sing-box
 ./scripts/feeds install -a
 cp "$ROOT_DIR/newifi3.config" .config
 bash "$ROOT_DIR/DIY/diy-part2-d2.sh"
