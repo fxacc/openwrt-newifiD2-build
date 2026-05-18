@@ -32,12 +32,8 @@ neg-ttl=600
 min-cache-ttl=3600
 EOF_DNS
 
-
-# Remove unwanted package directories if any script or feed brings them in, ensuring the image stays minimal.
-# OpenWrt master plus PassWall feeds provide the required PassWall2 components.
+# Remove unwanted package directories if any feed brings them in, ensuring the image stays minimal.
 rm -rf \
-  package/small \
-  package/openwrt-packages \
   feeds/packages/net/adguardhome \
   feeds/packages/net/zerotier \
   feeds/luci/applications/luci-app-adguardhome \

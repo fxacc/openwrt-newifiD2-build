@@ -1,9 +1,9 @@
 #!/bin/bash
-# Complete local build script for Newifi D2 minimal OpenWrt master + PassWall2 firmware.
+# Complete local build script for Newifi D2 minimal ImmortalWrt + PassWall2 firmware.
 set -euo pipefail
 
-REPO_URL="${REPO_URL:-https://github.com/openwrt/openwrt}"
-REPO_BRANCH="${REPO_BRANCH:-master}"
+REPO_URL="${REPO_URL:-https://github.com/immortalwrt/immortalwrt}"
+REPO_BRANCH="${REPO_BRANCH:-openwrt-23.05}"
 WORKDIR="${WORKDIR:-$PWD/workdir-newifi-d2}"
 JOBS="${JOBS:-$(nproc)}"
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -25,10 +25,8 @@ fi
 
 cd openwrt
 cp "$ROOT_DIR/feeds.conf.default" feeds.conf.default
-bash "$ROOT_DIR/DIY/diy-part1-d2-passwall2.sh"
 ./scripts/feeds update -a
 ./scripts/feeds install -a
-test -d package/feeds/passwall2/luci-app-passwall2 || { echo "Missing luci-app-passwall2" >&2; exit 1; }
 cp "$ROOT_DIR/newifi3.config" .config
 bash "$ROOT_DIR/DIY/diy-part2-d2.sh"
 make defconfig

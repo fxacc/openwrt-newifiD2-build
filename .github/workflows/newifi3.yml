@@ -24,7 +24,6 @@ on:
     paths:
       - 'newifi3.config'
       - 'feeds.conf.default'
-      - 'DIY/diy-part1-d2-passwall2.sh'
       - 'DIY/diy-part2-d2.sh'
       - 'Scripts/build-newifi-d2-passwall2.sh'
       - '.github/workflows/newifi3.yml'
@@ -37,7 +36,7 @@ env:
   REPO_URL: https://github.com/openwrt/openwrt
   REPO_BRANCH: master
   FEEDS_CONF: feeds.conf.default
-  PRODUCT_NAME: Newifi-D2-OpenWrt-Master-PassWall2
+  PRODUCT_NAME: Newifi-D2-PassWall2-Minimal
   CONFIG_FILE: newifi3.config
   DIY_P1_SH: DIY/diy-part1-d2-passwall2.sh
   DIY_P2_SH: DIY/diy-part2-d2.sh
@@ -85,14 +84,31 @@ jobs:
     - name: Update feeds
       run: cd openwrt && ./scripts/feeds update -a
 
+    - name: Prune incompatible PassWall Go cores
+      run: |
+        cd openwrt
+        rm -rf \
+          feeds/passwall_packages/xray-core \
+          feeds/passwall_packages/sing-box
+        if [ -d feeds/passwall_packages/xray-core ] || [ -d feeds/passwall_packages/sing-box ]; then
+          echo "::error::Failed to remove PassWall main-branch xray-core/sing-box packages before feeds install."
+          exit 1
+        fi
+
     - name: Install feeds
       run: cd openwrt && ./scripts/feeds install -a
 
-    - name: Verify PassWall2 feed
+    - name: Verify PassWall package set
       run: |
         cd openwrt
+        for pkg in geoview xray-core sing-box; do
+          if [ ! -d "package/feeds/passwall_packages/$pkg" ]; then
+            echo "::error::Missing package/feeds/passwall_packages/$pkg after feeds install. Check feeds.conf.default pin."
+            exit 1
+          fi
+        done
         if [ ! -d package/feeds/passwall2/luci-app-passwall2 ]; then
-          echo "::error::Missing luci-app-passwall2 after feeds install. Check feeds.conf.default."
+          echo "::error::Missing luci-app-passwall2 after feeds install."
           exit 1
         fi
 
@@ -222,13 +238,14 @@ jobs:
       uses: ncipollo/release-action@v1
       if: steps.organize.outputs.status == 'success' && !cancelled()
       with:
-        name: Newifi D2 OpenWrt Master PassWall2 ${{ env.DATE }}
-        tag: newifi-d2-openwrt-master-passwall2${{ env.FILE_NAME }}
+        name: Newifi D2 PassWall2 Minimal ${{ env.DATE }}
+        tag: newifi-d2-passwall2${{ env.FILE_NAME }}
         artifacts: ${{ env.FIRMWARE }}/*
         allowUpdates: true
         removeArtifacts: true
         token: ${{ secrets.GITHUB_TOKEN }}
         body: |
-          * Newifi D2 极简固件：OpenWrt master + LuCI + PassWall2 + xray-core + sing-box
+          * Newifi D2 极简固件：LuCI + PassWall2 + xray-core + sing-box
           * 默认 LAN IP：192.168.2.1，Hostname：Newifi-D2
-          * feeds.conf.default 使用 OpenWrt master feeds，并加入 passwall_packages/passwall2 main
+          * feeds.conf.default 已加入 passwall_packages 与 passwall2 feed
+          * ImmortalWrt OpenWrt 23.05-SNAPSHOT

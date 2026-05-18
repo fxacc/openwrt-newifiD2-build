@@ -5,8 +5,9 @@
 #=================================================
 set -euo pipefail
 
-# Keep this target minimal. The generic DIY/diy-part1.sh clones extra third-party
-# package collections; OpenWrt master plus PassWall feeds provide what this build needs.
+# Keep this target minimal. The generic DIY/diy-part1.sh clones the whole
+# kenzok8/small collection; PassWall2 and its geodata helpers are supplied by
+# feeds.conf.default instead, so the full third-party bundle is unnecessary.
 rm -rf \
   package/small \
   package/openwrt-packages \
