@@ -23,6 +23,11 @@ on:
       - master
     paths:
       - 'newifi3.config'
+      - 'feeds.conf.default'
+      - 'DIY/diy-part1-d2-passwall2.sh'
+      - 'DIY/diy-part2-d2.sh'
+      - 'Scripts/build-newifi-d2-passwall2.sh'
+      - '.github/workflows/newifi3.yml'
 #  schedule:
 #    - cron: 0 8 * * 5
   watch:
@@ -36,8 +41,9 @@ env:
   #REPO_BRANCH: 22.03
   #REPO_BRANCH: 23.05
   FEEDS_CONF: feeds.conf.default
+  PRODUCT_NAME: Newifi-D2-PassWall2-Minimal
   CONFIG_FILE: newifi3.config
-  DIY_P1_SH: DIY/diy-part1.sh
+  DIY_P1_SH: DIY/diy-part1-d2-passwall2.sh
   DIY_P2_SH: DIY/diy-part2-d2.sh
   UPLOAD_BIN_DIR: true
   UPLOAD_FIRMWARE: true
@@ -83,6 +89,23 @@ jobs:
     - name: Update feeds
       run: cd openwrt && ./scripts/feeds update -a
 
+    - name: Use newer OpenWrt Go toolchain
+      run: |
+        cd openwrt
+        rm -rf feeds/packages/lang/golang
+        svn export --force https://github.com/openwrt/packages/trunk/lang/golang feeds/packages/lang/golang
+
+    - name: Prune incompatible PassWall Go cores
+      run: |
+        cd openwrt
+        rm -rf \
+          feeds/passwall_packages/xray-core \
+          feeds/passwall_packages/sing-box
+        if [ -d feeds/passwall_packages/xray-core ] || [ -d feeds/passwall_packages/sing-box ]; then
+          echo "::error::Failed to remove PassWall main-branch xray-core/sing-box packages before feeds install."
+          exit 1
+        fi
+
     - name: Install feeds
       run: cd openwrt && ./scripts/feeds install -a
 
@@ -116,10 +139,11 @@ jobs:
         cd openwrt
         echo -e "$(nproc) thread compile"
         make -j$(nproc) || make -j2 || make -j2 V=s
-        echo "::setOutput name=status::success"
+        echo "status=success" >> $GITHUB_OUTPUT
         grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
         [ -s DEVICE_NAME ] && echo "DEVICE_NAME=_$(cat DEVICE_NAME)" >> $GITHUB_ENV
         echo "FILE_DATE=_$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
+        echo "FILE_NAME=_$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
         echo "DATE=$(date "+%Y-%m-%d %H:%M:%S")" >> $GITHUB_ENV
         
     - name: Check space usage
@@ -135,12 +159,17 @@ jobs:
 
     - name: Organize files
       id: organize
-      if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
+      if: steps.compile.outputs.status == 'success' && env.UPLOAD_FIRMWARE == 'true'
       run: |
-        cd openwrt/bin/targets/*/*
+        TARGET_DIR="$(find openwrt/bin/targets -mindepth 2 -maxdepth 2 -type d | head -n 1)"
+        if [ -z "$TARGET_DIR" ] || ! find "$TARGET_DIR" -maxdepth 1 -type f \( -name '*.bin' -o -name '*.img' -o -name '*.gz' \) | grep -q .; then
+          echo "::error::Build finished without firmware images under openwrt/bin/targets; check the compile log above for the first make error."
+          exit 1
+        fi
+        cd "$TARGET_DIR"
         rm -rf packages config.buildinfo feeds.buildinfo sha256sums version.buildinfo *.manifest Packages.tar.gz
         echo "FIRMWARE=$PWD" >> $GITHUB_ENV
-        echo "::setOutput name=status::success"
+        echo "status=success" >> $GITHUB_OUTPUT
         
     - name: Upload firmware directory
       uses: actions/upload-artifact@main
@@ -204,13 +233,16 @@ jobs:
 
     - name: Upload OpenWrt Firmware to Release
       uses: ncipollo/release-action@v1
+      if: steps.organize.outputs.status == 'success' && !cancelled()
       with:
-        name: newifi3 ${{ env.PRODUCT_NAME }}${{ env.DATE }}
-        tag: newifi3${{ env.FILE_NAME }}
+        name: Newifi D2 PassWall2 Minimal ${{ env.DATE }}
+        tag: newifi-d2-passwall2${{ env.FILE_NAME }}
         artifacts: ${{ env.FIRMWARE }}/*
         allowUpdates: true
         removeArtifacts: true
         token: ${{ secrets.GITHUB_TOKEN }}
         body: |
-          * newifi3固件
-          * immortalwrt OpenWrt 23.05-SNAPSHOT
+          * Newifi D2 极简固件：LuCI + PassWall2 + xray-core + sing-box
+          * 默认 LAN IP：192.168.2.1，Hostname：Newifi-D2
+          * feeds.conf.default 已加入 passwall_packages 与 passwall2 feed（升级 OpenWrt Go 工具链以支持 geoview，并移除 PassWall main 分支 xray-core/sing-box）
+          * ImmortalWrt OpenWrt 23.05-SNAPSHOT
