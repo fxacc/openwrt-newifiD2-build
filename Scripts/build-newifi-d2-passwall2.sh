@@ -25,15 +25,8 @@ fi
 
 cd openwrt
 cp "$ROOT_DIR/feeds.conf.default" feeds.conf.default
-bash "$ROOT_DIR/DIY/diy-part1-d2-passwall2.sh"
 ./scripts/feeds update -a
-rm -rf feeds/packages/lang/golang
-svn export --force https://github.com/openwrt/packages/trunk/lang/golang feeds/packages/lang/golang
 ./scripts/feeds install -a
-for pkg in geoview xray-core sing-box; do
-  test -d "package/feeds/passwall_packages/$pkg" || { echo "Missing package/feeds/passwall_packages/$pkg" >&2; exit 1; }
-done
-test -d package/feeds/passwall2/luci-app-passwall2 || { echo "Missing luci-app-passwall2" >&2; exit 1; }
 cp "$ROOT_DIR/newifi3.config" .config
 bash "$ROOT_DIR/DIY/diy-part2-d2.sh"
 make defconfig

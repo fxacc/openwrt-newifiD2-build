@@ -24,7 +24,6 @@ on:
     paths:
       - 'newifi3.config'
       - 'feeds.conf.default'
-      - 'DIY/diy-part1-d2-passwall2.sh'
       - 'DIY/diy-part2-d2.sh'
       - 'Scripts/build-newifi-d2-passwall2.sh'
       - '.github/workflows/newifi3.yml'
@@ -89,11 +88,16 @@ jobs:
     - name: Update feeds
       run: cd openwrt && ./scripts/feeds update -a
 
-    - name: Use newer OpenWrt Go toolchain
+    - name: Prune incompatible PassWall Go cores
       run: |
         cd openwrt
-        rm -rf feeds/packages/lang/golang
-        svn export --force https://github.com/openwrt/packages/trunk/lang/golang feeds/packages/lang/golang
+        rm -rf \
+          feeds/passwall_packages/xray-core \
+          feeds/passwall_packages/sing-box
+        if [ -d feeds/passwall_packages/xray-core ] || [ -d feeds/passwall_packages/sing-box ]; then
+          echo "::error::Failed to remove PassWall main-branch xray-core/sing-box packages before feeds install."
+          exit 1
+        fi
 
     - name: Install feeds
       run: cd openwrt && ./scripts/feeds install -a
@@ -247,5 +251,5 @@ jobs:
         body: |
           * Newifi D2 极简固件：LuCI + PassWall2 + xray-core + sing-box
           * 默认 LAN IP：192.168.2.1，Hostname：Newifi-D2
-          * feeds.conf.default 已加入 passwall2，并将 passwall_packages 固定到兼容 Go 1.25 的提交以保留 geoview/xray-core/sing-box
+          * feeds.conf.default 已加入 passwall_packages 与 passwall2 feed
           * ImmortalWrt OpenWrt 23.05-SNAPSHOT

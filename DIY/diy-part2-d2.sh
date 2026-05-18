@@ -32,16 +32,8 @@ neg-ttl=600
 min-cache-ttl=3600
 EOF_DNS
 
-
-# PassWall packages are pinned in feeds.conf.default, so geoview, xray-core,
-# and sing-box come from the same compatible feed snapshot.
-
 # Remove unwanted package directories if any feed brings them in, ensuring the image stays minimal.
-# package/small is intentionally removed because the full third-party bundle is
-# unnecessary for this target; PassWall2 geodata helpers come from passwall_packages.
 rm -rf \
-  package/small \
-  package/openwrt-packages \
   feeds/packages/net/adguardhome \
   feeds/packages/net/zerotier \
   feeds/luci/applications/luci-app-adguardhome \
