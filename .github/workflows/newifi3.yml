@@ -42,7 +42,7 @@ env:
   FEEDS_CONF: feeds.conf.default
   PRODUCT_NAME: Newifi-D2-PassWall2-Minimal
   CONFIG_FILE: newifi3.config
-  DIY_P1_SH: DIY/diy-part1.sh
+  DIY_P1_SH: DIY/diy-part1-d2-passwall2.sh
   DIY_P2_SH: DIY/diy-part2-d2.sh
   UPLOAD_BIN_DIR: true
   UPLOAD_FIRMWARE: true
