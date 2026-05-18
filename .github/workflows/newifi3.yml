@@ -102,6 +102,20 @@ jobs:
     - name: Install feeds
       run: cd openwrt && ./scripts/feeds install -a
 
+    - name: Verify PassWall package set
+      run: |
+        cd openwrt
+        for pkg in geoview xray-core sing-box; do
+          if [ ! -d "package/feeds/passwall_packages/$pkg" ]; then
+            echo "::error::Missing package/feeds/passwall_packages/$pkg after feeds install. Check feeds.conf.default pin."
+            exit 1
+          fi
+        done
+        if [ ! -d package/feeds/passwall2/luci-app-passwall2 ]; then
+          echo "::error::Missing luci-app-passwall2 after feeds install."
+          exit 1
+        fi
+
     - name: Load custom configuration
       run: |
         [ -e files ] && mv files openwrt/files
