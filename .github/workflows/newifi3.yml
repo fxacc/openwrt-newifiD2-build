@@ -137,6 +137,10 @@ jobs:
         fi
         cd "$TARGET_DIR"
         rm -rf packages config.buildinfo feeds.buildinfo sha256sums version.buildinfo *.manifest Packages.tar.gz
+        if ! find "$PWD" -maxdepth 1 -type f -name '*sysupgrade*.bin' | grep -q .; then
+          echo "::error::Build finished without a sysupgrade image for Newifi D2."
+          exit 1
+        fi
         echo "FIRMWARE=$PWD" >> $GITHUB_ENV
         echo "status=success" >> $GITHUB_OUTPUT
         
@@ -206,7 +210,7 @@ jobs:
       with:
         name: Newifi D2 OpenWrt Master PassWall2 ${{ env.DATE }}
         tag: newifi-d2-openwrt-master-passwall2${{ env.FILE_NAME }}
-        artifacts: ${{ env.FIRMWARE }}/*
+        artifacts: ${{ env.FIRMWARE }}/*sysupgrade*.bin
         allowUpdates: true
         removeArtifacts: true
         token: ${{ secrets.GITHUB_TOKEN }}
