@@ -20,6 +20,9 @@ on:
 #  schedule:
 #    - cron: 0 8 * * 5
 
+permissions:
+  contents: write
+
 env:
   REPO_URL: https://github.com/openwrt/openwrt
   REPO_BRANCH: master
