@@ -27,6 +27,16 @@ cd openwrt
 cp "$ROOT_DIR/feeds.conf.default" feeds.conf.default
 bash "$ROOT_DIR/DIY/diy-part1-d2-passwall2.sh"
 ./scripts/feeds update -a
+PASSWALL2_MAKEFILE="feeds/passwall2/luci-app-passwall2/Makefile"
+if [ ! -f "$PASSWALL2_MAKEFILE" ]; then
+  echo "Missing $PASSWALL2_MAKEFILE after feeds update." >&2
+  exit 1
+fi
+sed -i 's/[[:space:]]+geoview +v2ray-geoip +v2ray-geosite[[:space:]]*\\/ \\/' "$PASSWALL2_MAKEFILE"
+if grep -qE '\+(geoview|v2ray-geoip|v2ray-geosite)' "$PASSWALL2_MAKEFILE"; then
+  echo "Failed to remove bundled geodata dependencies from PassWall2." >&2
+  exit 1
+fi
 ./scripts/feeds install -a
 cp "$ROOT_DIR/newifi3.config" .config
 bash "$ROOT_DIR/DIY/diy-part2-d2.sh"

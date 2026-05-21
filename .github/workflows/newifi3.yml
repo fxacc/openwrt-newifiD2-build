@@ -75,6 +75,20 @@ jobs:
     - name: Update feeds
       run: cd openwrt && ./scripts/feeds update -a
 
+    - name: Keep PassWall2 geodata external
+      run: |
+        cd openwrt
+        PASSWALL2_MAKEFILE="feeds/passwall2/luci-app-passwall2/Makefile"
+        if [ ! -f "$PASSWALL2_MAKEFILE" ]; then
+          echo "::error::Missing $PASSWALL2_MAKEFILE after feeds update."
+          exit 1
+        fi
+        sed -i 's/[[:space:]]+geoview +v2ray-geoip +v2ray-geosite[[:space:]]*\\/ \\/' "$PASSWALL2_MAKEFILE"
+        if grep -qE '\+(geoview|v2ray-geoip|v2ray-geosite)' "$PASSWALL2_MAKEFILE"; then
+          echo "::error::Failed to remove bundled geodata dependencies from PassWall2."
+          exit 1
+        fi
+
     - name: Install feeds
       run: cd openwrt && ./scripts/feeds install -a
 
