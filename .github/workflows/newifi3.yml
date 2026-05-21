@@ -131,6 +131,9 @@ jobs:
       if: steps.compile.outputs.status == 'success' && env.UPLOAD_FIRMWARE == 'true'
       run: |
         TARGET_DIR="$(find openwrt/bin/targets -mindepth 2 -maxdepth 2 -type d | head -n 1)"
+        echo "TARGET_DIR=${TARGET_DIR:-<none>}"
+        find openwrt/bin/targets -maxdepth 3 -type f -printf '%s %p\n' | sort -n || true
+        [ -n "$TARGET_DIR" ] && du -ah "$TARGET_DIR" | sort -h || true
         if [ -z "$TARGET_DIR" ] || ! find "$TARGET_DIR" -maxdepth 1 -type f \( -name '*.bin' -o -name '*.img' -o -name '*.gz' \) | grep -q .; then
           echo "::error::Build finished without firmware images under openwrt/bin/targets; check the compile log above for the first make error."
           exit 1
